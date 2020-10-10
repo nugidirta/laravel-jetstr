@@ -17,6 +17,9 @@
                             <jet-nav-link href="/dashboard" :active="$page.currentRouteName == 'dashboard'">
                                 Dashboard
                             </jet-nav-link>
+                            <jet-nav-link href="/units" :active="$page.currentRouteName == 'units.index'">
+                                Units
+                            </jet-nav-link>
                         </div>
                     </div>
 
