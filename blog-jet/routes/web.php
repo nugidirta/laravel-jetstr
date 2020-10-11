@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\ItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +30,7 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 
 
 Route::resource('units', UnitController::class)->middleware(['auth:sanctum', 'verified']);
-
+Route::resource('brands', BrandController::class)->middleware(['auth:sanctum', 'verified']);
+Route::resource('warehouses', WarehouseController::class)->middleware(['auth:sanctum', 'verified']);
+Route::resource('items', ItemController::class)->middleware(['auth:sanctum', 'verified']);
+Route::resource('customers', CustomerController::class)->middleware(['auth:sanctum', 'verified']);

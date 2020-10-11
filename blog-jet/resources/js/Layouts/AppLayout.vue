@@ -20,6 +20,18 @@
                             <jet-nav-link href="/units" :active="$page.currentRouteName == 'units.index'">
                                 Units
                             </jet-nav-link>
+                            <jet-nav-link href="/brands" :active="$page.currentRouteName == 'brands.index'">
+                                Brands
+                            </jet-nav-link>
+                            <jet-nav-link href="/warehouses" :active="$page.currentRouteName == 'warehouses.index'">
+                                Warehouses
+                            </jet-nav-link>
+                            <jet-nav-link href="/items" :active="$page.currentRouteName == 'items.index'">
+                                Items
+                            </jet-nav-link>
+                            <jet-nav-link href="/customers" :active="$page.currentRouteName == 'customers.index'">
+                                Customers
+                            </jet-nav-link>
                         </div>
                     </div>
 
