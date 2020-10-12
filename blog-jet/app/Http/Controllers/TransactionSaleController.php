@@ -8,6 +8,7 @@ use App\Models\TransactionSale;
 use App\Models\TransactionSaleDetail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TransactionSaleController extends Controller
 {
@@ -41,38 +42,35 @@ class TransactionSaleController extends Controller
         DB::beginTransaction();
         try {
 
-            TransactionSale::create($request->all());
+            $transaction = TransactionSale::create($request->all());
 
-            $amount = 0;
+            $lineno = 1;
+            $subtotal = 0;
             foreach ($request->detail as $row) {
 
                 if (!is_null($row['price'])) {
-                    $subtotal = $row['price']['price'] * $row['qty'];
-                    if ($row['laundry_price']['unit_type'] == 'Kilogram') {
-                        $subtotal = ($row['laundry_price']['price'] * $row['qty']) / 1000;
-                    }
-
-                    $start_date = Carbon::now();
-                    $end_date = Carbon::now()->addHours($row['laundry_price']['service']);
-                    if ($row['laundry_price']['service_type'] == 'Hari') {
-                        $end_date = Carbon::now()->addDays($row['laundry_price']['service']);
-                    }
+                    $total = $row['price'] * $row['quantity'];
 
                     TransactionSaleDetail::create([
-                        'transaction_id' => $transaction->id,
-                        'laundry_price_id' => $row['laundry_price']['id'],
-                        'laundry_type_id' => $row['laundry_price']['laundry_type_id'],
-                        'start_date' => $start_date->format('Y-m-d H:i:s'),
-                        'end_date' => $end_date->format('Y-m-d H:i:s'),
-                        'qty' => $row['qty'],
-                        'price' => $row['laundry_price']['price'],
-                        'subtotal' => $subtotal
+                        'line_no' => $lineno,
+                        'transaction_no' => $transaction->id,
+                        'item_code' => $row['item_code'],
+                        'unit_code' => $row['unit_code'],
+                        'quantity' => $row['quantity'],
+                        'price' => $row['price'],
+                        'disc_pr' => $row['disc_pr'],
+                        'disc_nom' => $row['disc_nom'],
+                        'total' => $total,
+                        'tax' => 0,
                     ]);
 
-                    $amount += $subtotal;
+                    $lineno += 1;
+                    $subtotal += $total;
                 }
 
             }
+            $transaction->update(['subtotal' => $subtotal]);
+            DB::commit();
 
             return redirect()->back()
                         ->with('message', 'Transaction Created Successfully.');
@@ -102,9 +100,48 @@ class TransactionSaleController extends Controller
         ])->validate();
 
         if ($request->has('id')) {
-            TransactionSale::find($request->input('id'))->update($request->all());
-            return redirect()->back()
-                    ->with('message', 'Transaction Updated Successfully.');
+
+            DB::beginTransaction();
+            try {
+
+                $transaction = TransactionSale::find($request->input('id'))->update($request->all());
+
+                $lineno = 1;
+                $subtotal = 0;
+                foreach ($request->detail as $row) {
+
+                    if (!is_null($row['price'])) {
+                        $total = $row['price'] * $row['quantity'];
+
+                        TransactionSaleDetail::find($row['id'])->update([
+                            'line_no' => $lineno,
+                            'transaction_no' => $transaction->id,
+                            'item_code' => $row['item_code'],
+                            'unit_code' => $row['unit_code'],
+                            'quantity' => $row['quantity'],
+                            'price' => $row['price'],
+                            'disc_pr' => $row['disc_pr'],
+                            'disc_nom' => $row['disc_nom'],
+                            'total' => $total,
+                            'tax' => 0,
+                        ]);
+
+                        $lineno += 1;
+                        $subtotal += $total;
+                    }
+
+                }
+                $transaction->update(['subtotal' => $subtotal]);
+                DB::commit();
+
+                return redirect()->back()
+                        ->with('message', 'Transaction Updated Successfully.');
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                return redirect()->back()
+                            ->with('message', 'Transaction Updated Error.');
+            }
         }
     }
 

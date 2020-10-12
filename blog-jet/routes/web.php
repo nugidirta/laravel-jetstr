@@ -34,3 +34,4 @@ Route::resource('brands', BrandController::class)->middleware(['auth:sanctum', '
 Route::resource('warehouses', WarehouseController::class)->middleware(['auth:sanctum', 'verified']);
 Route::resource('items', ItemController::class)->middleware(['auth:sanctum', 'verified']);
 Route::resource('customers', CustomerController::class)->middleware(['auth:sanctum', 'verified']);
+Route::resource('transactionsales', TransactionSaleController::class)->middleware(['auth:sanctum', 'verified']);
